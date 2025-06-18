@@ -44,7 +44,7 @@ app.post("/api/v1/user/signup" ,async (req , res) => {
     const userId = user._id;
 
     const token = jwt.sign({
-        userId
+        userId : user._id
     } , JWT_SECRET)
 
     res.json({
@@ -79,7 +79,7 @@ app.post("/api/v1/user/signin" , async (req , res) => {
     const userId = user?._id
 
     if(user){
-        const token = jwt.sign({userId} , JWT_SECRET);
+        const token = jwt.sign({userId : user._id} , JWT_SECRET);
         res.json({
             messaage : "SignIned SuccessFully",
             token : token

@@ -1,6 +1,6 @@
 import mongoose, { model, Schema } from "mongoose";
 
-mongoose.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/Paytm")
+mongoose.connect("")
 
 const userSchema = new Schema({
     username : String,

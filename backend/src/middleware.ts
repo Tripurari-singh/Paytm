@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { JWT_SECRET } from "./config";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 
 
 const userMiddleaare = (req : Request , res : Response , next : NextFunction) => {
@@ -17,11 +17,14 @@ const userMiddleaare = (req : Request , res : Response , next : NextFunction) =>
   try{
      const token = authHeader.split("")[1];
 
-   const decoded = jwt.verify(token , JWT_SECRET) as any;
+     const decoded = jwt.verify(token , JWT_SECRET) as any;
 
-   console.log("userId from Token" , decoded.userId)
+     console.log("userId from Token" , decoded.userId)
+
+     req.userId = decoded.userId;
    
-   next();
+     next(); 
+
   }catch(error){
     res.status(403).json({
         message : "Invalid Error / Verification Failed"
@@ -30,4 +33,3 @@ const userMiddleaare = (req : Request , res : Response , next : NextFunction) =>
 }
 
 export default userMiddleaare;
-
