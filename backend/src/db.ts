@@ -7,12 +7,19 @@ const userSchema = new Schema({
     password : String,
     FirstName : String,
     LastName : String,
-})
+});
 
 const amountSchema = new Schema({
     userId : {
-        type : Mongoose.Schema.type.objectId
+        type : mongoose.Types.ObjectId,
+        required : true,
+        ref : "user"
+    },
+    balance : {
+        type : Number,
+        required : true
     }
-})
+});
 
-export const UserModel =  model("user" , userSchema)    
+export const AmountModel = model("amount" , amountSchema);
+export const UserModel =  model("user" , userSchema);

@@ -4,7 +4,7 @@ import cors from "cors";
 import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-import { UserModel } from "./db";
+import { AmountModel, UserModel } from "./db";
 import { JWT_SECRET } from "./config";
 import userMiddleware from "./middleware";
 
@@ -43,6 +43,15 @@ app.post("/api/v1/user/signup" ,async (req , res) => {
         LastName : LastName
     })
     const userId = user._id;
+
+
+    //Random Account Creation
+    await AmountModel.create({
+        balance : 1 + Math.random() * 10000
+    })
+    ///.......................
+
+
 
     const token = jwt.sign({
         userId : user._id
@@ -150,7 +159,7 @@ app.put("/api/v1/user/update" , userMiddleware ,async (req , res) => {
         })
     }
 })
-app.get("/api/v1/user/bulk" , async (req , res) => {
+app.get("/api/v1/user/bulk" , userMiddleware ,async (req , res) => {
     const filter = req.query.filter || "";
 
     const users = await UserModel.find({
@@ -173,6 +182,21 @@ app.get("/api/v1/user/bulk" , async (req , res) => {
             id : user._id
         }))
     })
+})
+
+app.get("/api/v1/Account/balance" , userMiddleware ,async (req , res) => {
+    const account = await AmountModel.findOne({
+        //@ts-ignore
+        userId : req.userId
+    })
+
+    res.json({
+        balance : account?.balance
+    })
+})
+
+app.post("/api/v1/Account/transfer" , userMiddleware , async (req , res) => {
+    
 })
 
 app.listen(3000 , () => {
