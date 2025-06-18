@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import { UserModel } from "./db";
 import { JWT_SECRET } from "./config";
+import userMiddleware from "./middleware";
 
 
 const app = express();
@@ -98,6 +99,80 @@ app.post("/api/v1/user/signin" , async (req , res) => {
     }
 
 
+})
+
+app.put("/api/v1/user/update" , userMiddleware ,async (req , res) => {
+    const updateSchema = z.object({
+        password : z.string().optional(),
+        FirstName : z.string().optional(),
+        LastName : z.string().optional(),
+    })
+
+    const { password , FirstName , LastName} = updateSchema.parse(req.body);
+
+    const updateData : any = {};
+
+    try{
+        if(password){
+        const HashedPassword = await bcrypt.hash(password , 10);
+        updateData.password = HashedPassword;
+    }
+    if(FirstName){ updateData.FirstName = FirstName }
+    if(LastName){ updateData.LastName = LastName }
+
+     const updatedData = await UserModel.findOneAndUpdate(
+        //@ts-ignore
+        {_id : req.userId},
+        updateData,
+        {new : true}
+    )
+
+    if(!updatedData){
+         res.status(404).json({
+            message : "user not Found . "
+        })
+        return;
+    }
+
+    res.json({
+        message :"Updatd Successfully"
+    })
+    }catch(error){
+        if(error instanceof ZodError){
+             res.status(404).json({
+                message : " Invalid Details / Zod Error",
+                error : error.errors,
+                
+            })
+        }
+        res.status(500).json({
+            message : " Invalid Server Error"
+        })
+    }
+})
+app.get("/api/v1/user/bulk" , async (req , res) => {
+    const filter = req.query.filter || "";
+
+    const users = await UserModel.find({
+        $or : [{
+            FirstName : {
+                "$regex" : filter
+            }
+        } , {
+            LastName : {
+                "$regex" : filter
+            }
+        }]
+    })
+
+    res.json({
+        user : users.map(user => ({
+            username : user.username,
+            FirstName : user.FirstName,
+            LastName : user.LastName,
+            id : user._id
+        }))
+    })
 })
 
 app.listen(3000 , () => {

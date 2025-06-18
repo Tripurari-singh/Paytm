@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { JWT_SECRET } from "./config";
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 
-const userMiddleaare = (req : Request , res : Response , next : NextFunction) => {
+const userMiddleware = (req : Request , res : Response , next : NextFunction) => {
 
    const authHeader = req.headers.authorization;
 
@@ -15,12 +15,12 @@ const userMiddleaare = (req : Request , res : Response , next : NextFunction) =>
    }
 
   try{
-     const token = authHeader.split("")[1];
+     const token = authHeader.split(" ")[1];
 
      const decoded = jwt.verify(token , JWT_SECRET) as any;
 
      console.log("userId from Token" , decoded.userId)
-
+    //  @ts-ignore
      req.userId = decoded.userId;
    
      next(); 
@@ -32,4 +32,4 @@ const userMiddleaare = (req : Request , res : Response , next : NextFunction) =>
   }
 }
 
-export default userMiddleaare;
+export default userMiddleware;
