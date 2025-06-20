@@ -1,6 +1,7 @@
-import mongoose, { model, Mongoose, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
-mongoose.connect("")
+mongoose.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/Paytm")
+
 
 const userSchema = new Schema({
     username : String,
@@ -9,7 +10,7 @@ const userSchema = new Schema({
     LastName : String,
 });
 
-const amountSchema = new Schema({
+const accountSchema = new Schema({
     userId : {
         type : mongoose.Types.ObjectId,
         required : true,
@@ -21,5 +22,5 @@ const amountSchema = new Schema({
     }
 });
 
-export const AmountModel = model("amount" , amountSchema);
+export const AccountModel = model("amount" , accountSchema);
 export const UserModel =  model("user" , userSchema);

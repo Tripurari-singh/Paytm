@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserModel = void 0;
+exports.UserModel = exports.AccountModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 mongoose_1.default.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/Paytm");
 const userSchema = new mongoose_1.Schema({
@@ -42,4 +42,16 @@ const userSchema = new mongoose_1.Schema({
     FirstName: String,
     LastName: String,
 });
+const accountSchema = new mongoose_1.Schema({
+    userId: {
+        type: mongoose_1.default.Types.ObjectId,
+        required: true,
+        ref: "user"
+    },
+    balance: {
+        type: Number,
+        required: true
+    }
+});
+exports.AccountModel = (0, mongoose_1.model)("amount", accountSchema);
 exports.UserModel = (0, mongoose_1.model)("user", userSchema);

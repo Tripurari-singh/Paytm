@@ -1,20 +1,34 @@
+import { useState } from "react";
 import { BottomWarning } from "../components/BottomWarning";
 import { Button } from "../components/Button";
 import { Heading } from "../components/heading";
 import { InputBox } from "../components/inputBox";
 import { SubHeading } from "../components/subHeading";
+import axios from "axios";
 
 export function Signin(){
+
+    const [userName , setUserName] = useState("");
+    const [password , setPassword] = useState("");
     return (
         <div className="bg-slate-400  h-screen flex justify-center">
             <div className="flex flex-col justify-center">
                 <div className="bg-white rounded-2xl text-center w-80 h-max px-4">
                     <Heading label={"Sign In"}/>
                     <SubHeading label={"Enter your credentials to access your account"}/>
-                    <InputBox label={"Email"} placeholder={"tripurari@gmail.com"} />
-                    <InputBox label={"password"} placeholder={"1234567"} />
+                    <InputBox onChange={(e) => {
+                        setUserName(e.target.value)
+                    }} label={"Email"} placeholder={"tripurari@gmail.com"} />
+                    <InputBox onChange={(e) => {
+                        setPassword(e.target.value)
+                    }} label={"password"} placeholder={"1234567"} />
                     <div className="pt-4 pb-4">
-                        <Button label={"Sign In"} />
+                        <Button onClick={() => {
+                            axios.post("http://localhost:3000/api/v1/user/signin" , {
+                                username : userName,
+                                password
+                            })
+                        }} label={"Sign In"} />
                     </div>
                     <BottomWarning label={"Don't Have An Account"} buttonText={"Sign Up"} to={"/signup"}/>
                 </div>

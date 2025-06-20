@@ -1,12 +1,12 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-import { AmountModel, UserModel } from "./db";
+import { AccountModel,  UserModel } from "./db";
 import { JWT_SECRET } from "./config";
 import userMiddleware from "./middleware";
+import mongoose from "mongoose";
 
 
 const app = express();
@@ -46,7 +46,8 @@ app.post("/api/v1/user/signup" ,async (req , res) => {
 
 
     //Random Account Creation
-    await AmountModel.create({
+    await AccountModel.create({
+        userId : userId,
         balance : 1 + Math.random() * 10000
     })
     ///.......................
@@ -77,12 +78,11 @@ app.post("/api/v1/user/signin" , async (req , res) => {
     try{
         const signinSchema = z.object({
         username : z.string(),
-        password : z.string(),
-        FirstName : z.string(),
-        LastName : z.string(),
+        password : z.string()
+       
     })
 
-    const {username , password , LastName , FirstName} = signinSchema.parse(req.body);
+    const {username , password} = signinSchema.parse(req.body);
 
     const user = await UserModel.findOne({username});
 
@@ -109,7 +109,6 @@ app.post("/api/v1/user/signin" , async (req , res) => {
 
 
 })
-
 app.put("/api/v1/user/update" , userMiddleware ,async (req , res) => {
     const updateSchema = z.object({
         password : z.string().optional(),
@@ -185,7 +184,7 @@ app.get("/api/v1/user/bulk" , userMiddleware ,async (req , res) => {
 })
 
 app.get("/api/v1/Account/balance" , userMiddleware ,async (req , res) => {
-    const account = await AmountModel.findOne({
+    const account = await AccountModel.findOne({
         //@ts-ignore
         userId : req.userId
     })
@@ -195,14 +194,151 @@ app.get("/api/v1/Account/balance" , userMiddleware ,async (req , res) => {
     })
 })
 
-app.post("/api/v1/Account/transfer" , userMiddleware , async (req , res) => {
+// ( Bad Solution )
+// ( Does Not Use Transactions For Transsfer Money )
+// ( Hence Commented )
+// ( If Both Node.js and DataBase Never Go Down It will work Fine  Else It ahs a Problem)
+// app.post("/api/v1/Account/transfer" , userMiddleware , async (req , res) => {
+//     const {amount , to} = req.body;
+
+//     const account = await AccountModel.findOne({
+//         //@ts-ignore
+//         userId : req.userId
+//     })
+
+//     if(!account){
+//          res.status(400).json({
+//             message : " Sender Account Invalid "
+//         })
+//         return
+//     }
+
+//     if(account.balance < amount){
+//         res.status(400).json({
+//             mnessage : "Insufficient Balance In The Account"
+//         })
+//         return
+//     }
+
+//     const toAccount = await AccountModel.findOne({
+//         userId : to
+//     })
+
+//     if(!toAccount){
+//         res.status(400).json({
+//             message : " Reciver Account Invalid"
+//         })
+//     }
+   
+//     //Debit The Amount From The Senders Account
+//     await AccountModel.updateOne({
+//         //@ts-ignore
+//         userId : req.userId
+//     } , {
+//        $inc :{
+//         balance : -amount
+//        }
+//     })
+
     
-})
+//     // Credit The Amount To The Recievers Account
+//     await AccountModel.updateOne({
+//         userId : to
+//     } , {
+//         $inc : {
+//             balance : amount
+//         }
+//     })
+
+
+//     res.status(200).json({
+//         message : "Transfer Successfull"
+//     })
+// })
+
+// ( Good Solution )
+// Use Transactions For Money Transfer
+// Also Address The Issue Of Concurrent Requests Send at Same Time
+
+
+//( Working Fine Checked )
+
+app.post("/api/v1/Account/transfer" , userMiddleware , async (req , res) => {
+    try{
+    const session = await mongoose.startSession();
+    
+    session.startTransaction();
+    const {amount , to} = req.body;
+
+    const account = await AccountModel.findOne({
+        //@ts-ignore
+        userId : req.userId
+    }).session(session)
+
+    if(!account){
+        await session.abortTransaction();
+        res.status(400).json({
+            message : "Senders Account Invalid"
+        })
+        return
+    }
+    const toAccount = await AccountModel.findOne({
+        userId : to
+    }).session(session)
+
+    if(!toAccount){
+        await session.abortTransaction();
+        res.status(400).json({
+            message : "Recievers Account Invalid"
+        })
+        return
+    }
+    if(account.balance < amount){
+        await session.abortTransaction();
+        res.status(400).json({
+            message :"Insufficient Balance In Senders Account"
+        })
+        return
+    }
+    //Transfeing Amount
+    //Debiting The Amount
+    await AccountModel.updateOne({
+        //@ts-ignore
+        userId : req.userId
+    } , {
+        $inc : {
+            balance : -amount
+        }
+    }).session(session)
+
+    //Cediting The Amount
+    await AccountModel.updateOne({
+        //@ts-ignore
+        userId : to
+    } , {
+        $inc : {
+            balance : amount
+        }
+    }).session(session) 
+
+    //Commit The Transaction
+    await session.commitTransaction();
+    res.json({
+        message : " Transfer SuccessFull"
+    })
+    }catch(error){
+        res.status(500).json({
+            message : "Internnal Server Error ",
+            error : error
+        })
+    }
+    
+});
+
 
 app.listen(3000 , () => {
     console.log("app is Listening on Port 3000")
 })
 
 
-dotenv.config();
 
