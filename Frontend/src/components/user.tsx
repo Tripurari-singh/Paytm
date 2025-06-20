@@ -19,7 +19,7 @@ export function Users(){
     }]);  
 
     return (
-        <div className="flex flex-col shadow-slate-400 bg-white shadow-xl hover:shadow-2xl transition-all duration-300 m-6 p-6 rounded-2xl border border-gray-200">
+        <div className="flex flex-col justify-between shadow-slate-400 bg-white shadow-md hover:shadow-2xl transition-all duration-300 m-6 p-6 rounded-2xl border border-gray-200">
             <div className=" text-2xl font-bold  ml-12 m-2 ">
                 {/* {users} */}
                 Users
@@ -53,3 +53,5 @@ export function Users(){
         </div>
     )
 }
+
+"flex justify-between items-center p-4 bg-white rounded-xl shadow-md border border-gray-200 backdrop-blur-sm"

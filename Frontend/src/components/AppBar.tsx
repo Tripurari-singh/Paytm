@@ -1,7 +1,7 @@
 
 export function AppBar() {
   return (
-    <div className="flex justify-between items-center p-4 bg-white rounded-xl shadow-md border border-gray-200 backdrop-blur-sm">
+    <div className="flex justify-between shadow-slate-400 bg-white  transition-all duration-300 m-2 p-2 rounded-2xl border border-gray-200">
       <div className=" bg-slate-500 text-lg font-semibold text-white ml-2 rounded-full p-3">
         Paytm App
       </div>
@@ -15,3 +15,5 @@ export function AppBar() {
     </div>
   );
 }
+
+
