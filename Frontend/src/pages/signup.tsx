@@ -1,3 +1,4 @@
+import { BottomWarning } from "../components/BottomWarning";
 import { Button } from "../components/Button";
 import { Heading } from "../components/heading";
 import { InputBox } from "../components/inputBox";
@@ -17,8 +18,8 @@ export function Signup(){
                     <div className="pt-5">
                         <Button label={"Sign Up"}/>
                     </div>
-                    {/* Having Some Issue For BottomWarning Component For Now */}
-                    {/* <BottomWarning label={"Already Have An Account"} buttonText={"Sign In"} to={"/signin"} /> */}
+                    
+                    <BottomWarning label={"Don't Have An Account"} buttonText={"Sign in"} to={"/signin"}/>
                 </div>
             </div>
         </div>

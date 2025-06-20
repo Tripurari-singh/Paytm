@@ -1,5 +1,5 @@
 interface InputBoxInterface {
-    label : string,
+    label? : string,
     placeholder : string
 }
 export function InputBox({label , placeholder} : InputBoxInterface){

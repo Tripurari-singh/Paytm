@@ -9,7 +9,7 @@ interface BottomWarningInterface {
 export function BottomWarning({ label, buttonText, to }: BottomWarningInterface) {
   console.log("BottomWarning rendered");
   return (
-    <div className="py-2 text-sm flex justify-center">
+    <div className="py-2 text-sm flex justify-center mb-2 pb-2">
       <span>{label}</span>
       <Link className="pl-1 underline text-blue-600 hover:text-blue-800" to={to}>
         {buttonText}
