@@ -1,22 +1,33 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { InputBox } from "./inputBox";
 import { Button } from "./Button";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface userInterface {
     user : {
         FirstName : string,
         LastName  : string,
-        _id : number
+        id : string
     }
 }
 
 export function Users(){
 
-    const[users , setUsers] = useState([{
-        FirstName : "Tripurari",
-        LastName  : "Singh",
-        _id : 1
-    }]);  
+    const[users , setUsers] = useState([]);
+    const [filter , setFilter] = useState("");
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter , {
+            headers : {
+               Authorization : `Bearer ${token}`
+            }
+        })
+        .then((response) => {
+            setUsers(response.data.user)
+        })
+    } , [filter])
 
     return (
         <div className="flex flex-col justify-between shadow-slate-400 bg-white shadow-md hover:shadow-2xl transition-all duration-300 m-6 p-6 rounded-2xl border border-gray-200">
@@ -25,7 +36,9 @@ export function Users(){
                 Users
             </div>
             <div className="ml-10 mr-10">
-                <InputBox placeholder={"Search Users"} />
+                <InputBox onChange={(e) => {
+                    setFilter(e.target.value)
+                }} placeholder={"Search Users"} />
             </div>
             <div>
                 {users.map(user => <User user={user} />)}
@@ -35,6 +48,7 @@ export function Users(){
 }
 
  export function User({user} : userInterface){
+    const navigate = useNavigate();
     return(
         <div className="flex justify-between ml-10 mt-5">
             <div className="flex">
@@ -48,10 +62,11 @@ export function Users(){
                 </div>
             </div>
             <div className="ml-10 mr-10">
-                <Button label={"Send Money"} />
+                <Button onClick={() => {
+                    navigate("/sendmoney?id=" + user.id + "&name=" + user.FirstName)
+                }} label={"Send Money"} />
             </div>
         </div>
     )
 }
 
-"flex justify-between items-center p-4 bg-white rounded-xl shadow-md border border-gray-200 backdrop-blur-sm"
