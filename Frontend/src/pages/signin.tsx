@@ -5,11 +5,13 @@ import { Heading } from "../components/heading";
 import { InputBox } from "../components/inputBox";
 import { SubHeading } from "../components/subHeading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export function Signin(){
 
     const [userName , setUserName] = useState("");
     const [password , setPassword] = useState("");
+    const navigate = useNavigate();
     return (
         <div className="bg-slate-400  h-screen flex justify-center">
             <div className="flex flex-col justify-center">
@@ -27,7 +29,13 @@ export function Signin(){
                             axios.post("http://localhost:3000/api/v1/user/signin" , {
                                 username : userName,
                                 password
-                            })
+                            }).then((response) => {
+                                localStorage.setItem("token" , response.data.token)
+                                 navigate("/dashboard")
+                            }).catch((err) => {
+                                alert("Signin failed. Please check your credentials.");
+                                console.error(err);
+                            });
                         }} label={"Sign In"} />
                     </div>
                     <BottomWarning label={"Don't Have An Account"} buttonText={"Sign Up"} to={"/signup"}/>

@@ -23,7 +23,7 @@ export function SendMoney(){
                     <div className="flex">
                         <div className=" flex flex-col justify-center bg-green-500 rounded-full h-12 w-12">
                            <div className="flex flex-col justify-center rounded-full m-2 p-2 text-xl text-white">
-                               {name?.[0]}
+                               {name?.[0].toUpperCase()}
                            </div>
                         </div>
                         <div className="m-2  ml-3 text-2xl font-bold">
